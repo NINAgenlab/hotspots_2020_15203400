@@ -1,0 +1,71 @@
+/* earthworms at the seminatural (lavland) and forest (skog) sites */
+/* input file for Program Mark */
+/* Trua Arter project, 15 March 2021 */
+/* n = 4 occasions, random/kit (RK), random/phosphate (RP), systematic/kit (SK), systematic/phosphate (SP) */
+/* n = 2 groups, lavland or skog */
+/* n = 1 individual covariate, proportional abundance Log10Average of 40 samples */
+/* lavland--Achaeta unibulba */	1111	1 0	-3.82098572081734	;
+/* lavland--Aporrectodea rosea */	1011	1 0	-3.42547474933357	;
+/* lavland--Aporrectodea tuberculata */	1111	1 0	-3.99873325182927	;
+/* lavland--Bryodrilus diverticulatus */	0011	1 0	-3.08741685456048	;
+/* lavland--Cernosvitoviella aggtelekiensis */	1111	1 0	-3.62759410501248	;
+/* lavland--Cernosvitoviella cf. atrata PDW-2010 */	1111	1 0	-1.69270953295134	;
+/* lavland--Chamaedrilus aff. glandulosus B SM-2014 */	0011	1 0	-3.14193431531384	;
+/* lavland--Chamaedrilus aff. sphagnetorum A SM-2014 */	1111	1 0	-0.513926218635324	;
+/* lavland--Chamaedrilus aff. sphagnetorum C SM-2014 */	1111	1 0	-0.82778409390365	;
+/* lavland--Chamaedrilus asloae */	1111	1 0	-2.78408765295052	;
+/* lavland--Chamaedrilus chalupskyi */	1111	1 0	-1.66958480975924	;
+/* lavland--Chamaedrilus varisetosus */	1111	1 0	-1.15827259943115	;
+/* lavland--Dendrobaena octaedra */	0010	1 0	-5.28939730515314	;
+/* lavland--Eiseniella tetraedra */	1100	1 0	-5.1698663443352	;
+/* lavland--Enchytraeus bulbosus */	0111	1 0	-1.32779769620563	;
+/* lavland--Enchytraeus lacteus */	1011	1 0	-1.17955188228381	;
+/* lavland--Enchytronia parva */	1111	1 0	-2.23262423287624	;
+/* lavland--Fridericia bulboides */	1111	1 0	-2.56581874970396	;
+/* lavland--Fridericia cf. renatae PDW-2010 */	0011	1 0	-2.85294226528072	;
+/* lavland--Fridericia christeri */	0010	1 0	-2.77475564011763	;
+/* lavland--Fridericia dura */	1111	1 0	-1.10428162068705	;
+/* lavland--Fridericia paroniana */	0111	1 0	-3.27208478717878	;
+/* lavland--Fridericia perrieri */	1111	1 0	-2.36874527661858	;
+/* lavland--Fridericia ratzeli */	1100	1 0	-1.30138101531115	;
+/* lavland--Fridericia sohlenii */	1111	1 0	-2.63206414119403	;
+/* lavland--Hemifridericia parva */	1101	1 0	-1.69188294038701	;
+/* lavland--Henlea glandulifera */	1111	1 0	-1.21306821473	;
+/* lavland--Henlea heleotropha */	0111	1 0	-2.71122730618319	;
+/* lavland--Henlea perpusilla */	1111	1 0	-1.97939769783424	;
+/* lavland--Henlea ventriculosa */	0011	1 0	-2.23444474123317	;
+/* lavland--Lumbricus castaneus */	0100	1 0	-5.15049694319489	;
+/* lavland--Lumbricus rubellus */	1111	1 0	-4.11694568894405	;
+/* lavland--Marionina cf. riparia PDW-2010 */	0011	1 0	-3.17754888275034	;
+/* lavland--Marionina communis */	1111	1 0	-2.54340066361719	;
+/* lavland--Mesenchytraeus armatus */	1111	1 0	-2.07765351898425	;
+/* lavland--Mesenchytraeus flavus */	0011	1 0	-2.66016363028124	;
+/* lavland--Octolasion lacteum */	1111	1 0	-4.16262058849703	;
+/* lavland--Stercutus niveus */	0010	1 0	-2.73481239573983	;
+/* lavland--Stylodrilus heringianus */	1111	1 0	-1.41519713156932	;
+/* skog--Aporrectodea tuberculata */	1111	0 1	-3.99873325182927	;
+/* skog--Bryodrilus ehlersi */	0010	0 1	-3.86428758932301	;
+/* skog--Cernosvitoviella cf. atrata PDW-2010 */	1111	0 1	-1.69270953295134	;
+/* skog--Chamaedrilus aff. glandulosus B SM-2014 */	0110	0 1	-3.14193431531384	;
+/* skog--Chamaedrilus aff. sphagnetorum A SM-2014 */	1111	0 1	-0.513926218635324	;
+/* skog--Chamaedrilus aff. sphagnetorum C SM-2014 */	1111	0 1	-0.82778409390365	;
+/* skog--Chamaedrilus asloae */	0011	0 1	-2.78408765295052	;
+/* skog--Chamaedrilus chalupskyi */	1111	0 1	-1.66958480975924	;
+/* skog--Chamaedrilus varisetosus */	1111	0 1	-1.15827259943115	;
+/* skog--Dendrobaena illyrica */	0001	0 1	-6.07476826963717	;
+/* skog--Dendrobaena octaedra */	0111	0 1	-5.28939730515314	;
+/* skog--Dendrodrilus rubidus */	1111	0 1	-4.58796098191122	;
+/* skog--Dendrodrilus rubidus rubidus */	1110	0 1	-5.29660857383772	;
+/* skog--Enchytronia parva */	1110	0 1	-2.23262423287624	;
+/* skog--Fridericia dura */	0010	0 1	-1.10428162068705	;
+/* skog--Fridericia paroniana */	0100	0 1	-3.27208478717878	;
+/* skog--Fridericia perrieri */	0011	0 1	-2.36874527661858	;
+/* skog--Hemifridericia parva */	1000	0 1	-1.69188294038701	;
+/* skog--Henlea glandulifera */	0011	0 1	-1.21306821473	;
+/* skog--Henlea perpusilla */	0001	0 1	-1.97939769783424	;
+/* skog--Lumbricus rubellus */	0111	0 1	-4.11694568894405	;
+/* skog--Mesenchytraeus armatus */	1111	0 1	-2.07765351898425	;
+/* skog--Mesenchytraeus cf. gelidus SL-2017 */	0110	0 1	-3.74671755163922	;
+/* skog--Mesenchytraeus flavus */	0011	0 1	-2.66016363028124	;
+/* skog--Mesenchytraeus pelicensis */	1111	0 1	-1.83431694893647	;
+/* skog--Stylodrilus heringianus */	1111	0 1	-1.41519713156932	;

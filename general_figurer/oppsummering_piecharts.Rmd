@@ -1,0 +1,167 @@
+---
+title: "pie charts"
+author: "Marie L. Davey"
+date: "27 2 2021"
+output: html_document
+---
+
+#amplifikasjon
+```{r}
+#100% pie chart for ewDE Mam16S Nem18s,fITS7,vert12S,ITS2,BF3BR2,ColMtCOI,MarVer3,ModRepCOI
+
+gen100=data.frame(Amplifikasjon=c("positivt","negativt"),value=c(100,0))
+aran01=data.frame(amplification=c("positive","negative"),value=c(7.5,92.5))
+ZBJ=data.frame(amplification=c("positive","negative"),value=c(17.5,82.5))
+acar01=data.frame(amplification=c("positive","negative"),value=c(2.5,97.5))
+fwhEPTD=data.frame(amplification=c("positive","negative"),value=c(0,100))
+fwhEPTD_wood=data.frame(amplification=c("positive","negative"),value=c(18,82))
+
+gen=ggplot(gen100,aes(x="",y=value,fill=Amplifikasjon))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+ # theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+ggplot(gen100,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+
+ggplot(aran01,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+ggplot(ZBJ,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+ggplot(acar01,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+ggplot(fwhEPTD,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+ggplot(fwhEPTD_wood,aes(x="",y=value,fill=amplification))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("#C189BE","#93328E"))
+
+
+get_legend<-function(myggplot){
+  tmp <- ggplot_gtable(ggplot_build(myggplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+legend <- get_legend(gen+theme(legend.text = element_text(size=12),legend.title=element_text(size=14,face="bold"),panel.background = element_blank()))
+     
+```
+
+
+#målarter
+```{r}
+plantITS=data.frame(Sekvenser=c("target","non-target","ikkje sekvensert"),value=c(55,45,0))
+colMtCOI=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(1,99,0))
+acar01=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c())
+aran01=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c())
+funITS=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(86,14,0))
+funITS.wood=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(73,27,0))
+nem18S=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c())
+ewDE=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(74,26,0))
+BF3BR2=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(1,99,0))
+ZBJ=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c())
+fwhEPTD=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(0,0,100))
+mam16S=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(17,83,0))
+vert12S=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(59,41,0))
+MarVer3=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(0.5,99.5,0))
+ModRepCOI=data.frame(Sekvenser=c("positive","negative","ikkje sekvensert"),value=c(1,99,0))
+
+
+ggplot(plantITS,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(colMtCOI,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(funITS,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(funITS.wood,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(ModRepCOI,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(fwhEPTD,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(BF3BR2,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(MarVer3,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(vert12S,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(mam16S,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+ggplot(ewDE,aes(x="",y=value,fill=Sekvenser))+
+  geom_bar(stat="identity")+
+  coord_polar("y",start=0)+
+  theme_void()+
+  theme(legend.position="none")+
+  scale_fill_manual(values=c("grey45","#B9DFE2","#008C95"))
+
+```
