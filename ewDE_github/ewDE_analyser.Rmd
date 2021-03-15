@@ -1,0 +1,118 @@
+---
+title: "ewDE analyser"
+author: "Marie L. Davey"
+date: "3/10/2021"
+output: html_document
+---
+#åpne dataen
+```{r}
+physeq.worms=readRDS("/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ewDE/physeq_worm_species.rds")
+physeq.worms@sam_data$seq_depth=sample_sums(physeq.worms)
+```
+
+#oversikt av sekvenseringsdybde
+```{r}
+summary(sample_sums(physeq.worms))
+hist(sample_sums(physeq.worms))
+
+seq_depths=data.frame(Lokalitet=physeq.worms@sam_data$locality,method=physeq.worms@sam_data$sampling_scheme,extraction_type=physeq.worms@sam_data$extraction_type,seq_depth=sample_sums(physeq.worms),rich_raw=rowSums(decostand(physeq.worms@otu_table@.Data,"pa")),rich_rarefied=rowSums(decostand(rrarefy(physeq.worms@otu_table@.Data,sample=25000),"pa")))
+tmp=data.frame(Lokalitet=unique(unrarefied$locality),total_rich=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate>0|unrarefied$A_kit>0|unrarefied$B_phosphate>0|unrarefied$B_kit>0)])))
+seq_depths=left_join(seq_depths,tmp)
+seq_depths$combi=paste(seq_depths$method,seq_depths$extraction_type)
+
+ggplot(seq_depths,aes(x=(seq_depth),y=rich_raw/total_rich,color=combi))+
+  geom_point()+scale_color_manual(values=c("#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode")+
+  scale_color_manual(values=c("#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode",labels=c("ANO fosfat buffer","ANO kit","intensiv fosfat buffer","intensiv kit"))+
+  theme(axis.line = element_line(color="black"),panel.background = element_blank())+
+  xlab("Sekvenseringsdybde")+
+  ylab("Andel arter påvist")
+```
+
+#Sammenligning av metodene (antall arter)
+```{r}
+tmp=data.frame(data.frame(physeq.worms@tax_table),t(physeq.worms@otu_table@.Data))
+tmp=melt(tmp)
+tmp$variable=gsub("\\.","-",tmp$variable)
+tmp=right_join(data.frame(physeq.worms@sam_data),tmp,c("sample"="variable"))
+unrarefied=reshape2::dcast(tmp,locality+species~sampling_scheme+extraction_type,value.var = "value",fun.aggregate = sum)
+
+
+tmp=data.frame(Lokalitet=unique(unrarefied$locality),method="kit",category="isolasjon",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$B_kit==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit==0&unrarefied$B_kit>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$B_kit>0)])))
+tmp2=data.frame(Lokalitet=unique(unrarefied$locality),method="fosfat buffer",category="isolasjon",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate>0&unrarefied$B_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate==0&unrarefied$B_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate>0&unrarefied$B_phosphate>0)])))
+
+tmp3=data.frame(Lokalitet=unique(unrarefied$locality),method="ANO",category="prøvetaking",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$A_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit==0&unrarefied$A_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$A_phosphate>0)])))
+tmp4=data.frame(Lokalitet=unique(unrarefied$locality),method="intensiv",category="prøvetaking",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit>0&unrarefied$B_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit==0&unrarefied$B_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit>0&unrarefied$B_phosphate>0)])))
+
+unrarefied.summary=rbind(tmp,tmp2,tmp3,tmp4)
+unrarefied.summary=melt(unrarefied.summary)
+unrarefied.summary$variable=factor(unrarefied.summary$variable,levels=c("A","AB","B"))
+ggplot(unrarefied.summary[unrarefied.summary$category=="isolasjon",],aes(x=Lokalitet,y=value,fill=variable))+
+  geom_bar(stat="identity")+
+  facet_wrap(~method,scales="free_y")+
+  ylab("Antall arter")+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank(),axis.text.x = element_text(angle=90))+
+  scale_fill_manual(values=c("#e5f5e0","#31a354","#a1d99b"),name="Deteksjonskategori",labels=c("kun ANO","begge","kun intensiv"))
+  
+ggplot(unrarefied.summary[unrarefied.summary$category=="prøvetaking",],aes(x=Lokalitet,y=value,fill=variable))+
+  geom_bar(stat="identity")+
+  facet_wrap(~method,scales="free_y")+
+  ylab("Antall arter")+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank(),axis.text.x = element_text(angle=90))+
+  scale_fill_manual(values=c("#efedf5","#756bb1","#bcbddc"),name="Deteksjonskategori",labels=c("kun kit","begge","kun fosfat buffer"))
+  
+```
+
+#lage deteksjonsmatrix fra data
+```{r}
+detmat=data.frame(physeq.worms@tax_table,t(transform_sample_counts(physeq.worms,function(x)x/sum(x))@otu_table@.Data))
+detmat=melt(detmat)
+detmat$variable=gsub("\\.","-",detmat$variable)
+detmat=right_join(data.frame(physeq.worms@sam_data),detmat,c("sample"="variable"))
+detmat=select(detmat,sample,habitat,locality,sampling_scheme,extraction_type,soil_weight_kit_extraction,seq_depth,kingdom,phylum,class,order,family,genus,species,value)
+colnames(detmat)=c("sample","habitat","locality","sampling_method","extraction_type","sample_weight","seq_depth","kingdom","phylum","class","order","family","genus","species","proportional abundance")
+write.table(detmat,"/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ewDE/detection_matrix_11032021.txt",sep=";",row.names=F)
+
+
+```
+
+#NMDS ordinasjon av dataen
+```{r}
+ord=metaMDS(physeq.worms@otu_table@.Data)
+MDS=data.frame(data.frame(physeq.worms@sam_data),scores(ord))
+MDS=left_join(MDS,data.frame(locality=gsub("physeq.worms.sam_data.locality","",rownames(envfit(ord~physeq.worms@sam_data$locality)$factors$centroids)),NMDS1_centroid=(envfit(ord~physeq.worms@sam_data$locality))$factors$centroids[,1],NMDS2_centroid=(envfit(ord~physeq.worms@sam_data$locality))$factors$centroids[,2]))
+MDS$Metode[MDS$sampling_scheme=="A"&MDS$extraction_type=="kit"]="ANO kit"
+MDS$Metode[MDS$sampling_scheme=="A"&MDS$extraction_type=="phosphate"]="ANO fosfat buffer"
+MDS$Metode[MDS$sampling_scheme=="B"&MDS$extraction_type=="kit"]="intensiv kit"
+MDS$Metode[MDS$sampling_scheme=="B"&MDS$extraction_type=="phosphate"]="intensiv fosfat buffer"
+
+ggplot(MDS,aes(x=NMDS1,y=NMDS2,color=habitat,fill=habitat,shape=Metode))+
+  geom_point(size=2)+
+  geom_segment(aes(x=NMDS1,y=NMDS2,xend=NMDS1_centroid,yend=NMDS2_centroid,color=habitat,fill=habitat))+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank())+
+  scale_color_manual(values=c("#7b3294","#008837"),name="Habitat",labels=c("semi-naturlig mark","skog"))+
+  scale_fill_manual(values=c("#7b3294","#008837"),name="Habitat",labels=c("semi-naturlig mark","skog"))+
+  guides(fill=F)+
+  scale_shape_manual(values=c(21,22,24,25))
+```
+
+#CCA ordinasjon etter fjerning av variasjon koblet til lokalitet
+```{r}
+tmp=cca(physeq.worms@otu_table@.Data~physeq.worms@sam_data$sampling_scheme+physeq.worms@sam_data$extraction_type+Condition(physeq.worms@sam_data$locality))
+
+CCA=data.frame(data.frame(physeq.worms@sam_data),scores(tmp)$sites)
+CCA=left_join(CCA,data.frame(locality=gsub("physeq.worms\\@sam_data\\$locality","",rownames(summary(tmp)$centroids)[5:14]),CCA1_centroids=summary(tmp)$centroids[,1][5:14],CCA2_centroids=summary(tmp)$centroids[,2][5:14]))
+CCA$Metode[CCA$sampling_scheme=="A"&CCA$extraction_type=="kit"]="ANO kit"
+CCA$Metode[CCA$sampling_scheme=="A"&CCA$extraction_type=="phosphate"]="ANO fosfat buffer"
+CCA$Metode[CCA$sampling_scheme=="B"&CCA$extraction_type=="kit"]="intensiv kit"
+CCA$Metode[CCA$sampling_scheme=="B"&CCA$extraction_type=="phosphate"]="intensiv fosfat buffer"
+
+ggplot(CCA,aes(x=CCA1,y=CCA2,color=Metode,fill=Metode))+
+  geom_point(aes(shape=extraction_type))+
+  #geom_segment(aes(x=CCA1,y=CCA2,xend=CCA1_centroids,yend=CCA2_centroids))+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank())+
+  scale_color_manual(values=c("#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode")+
+  scale_fill_manual(values=c("#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode")+
+  guides(fill=F)+
+  scale_shape_manual(values=c(21,24),name="Isolasjon",labels=c("kit","fosfat"))
+```
+
