@@ -1,0 +1,130 @@
+---
+title: "ITS2_ITS4_analyser"
+author: "Marie L. Davey"
+date: "3/15/2021"
+output: html_document
+---
+---
+title: "plant_figs"
+author: "Marie L. Davey"
+date: "2/16/2021"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(reshape2)
+library(eulerr)
+library(ggplot2)
+library(vegan)
+```
+
+#åpne data
+```{r}
+plant.detmax=read.table("/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ITS2_ITS4/detection_matrix_plants_24022021.txt",header=T,fileEncoding = "latin1",sep=";")
+physeq_species=readRDS("/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ITS2_ITS4/physeq_combispecies_01022021.rds")
+```
+
+#bar figurer
+```{r}
+physeq_plants=prune_taxa(physeq_species,taxa=taxa_names(physeq_species)[physeq_species@tax_table@.Data[,2]=="Streptophyta"&!physeq_species@tax_table@.Data[,3]%in%c("Bryopsida","Polytrichopsida","Jungermanniopsida")])
+physeq_plants@sam_data$seq_depth=sample_sums(physeq_plants)
+
+tmp=data.frame(data.frame(physeq_plants@tax_table),t(physeq_plants@otu_table@.Data))
+tmp=melt(tmp)
+tmp=right_join(data.frame(physeq_plants@sam_data),tmp,c("sample"="variable"))
+unrarefied=reshape2::dcast(tmp,locality+species~method+extraction_type,value.var = "value",fun.aggregate = sum)
+
+tmp=data.frame(Lokalitet=unique(unrarefied$locality),method="kit",category="isolasjon",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$B_kit==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit==0&unrarefied$B_kit>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$B_kit>0)])))
+tmp2=data.frame(Lokalitet=unique(unrarefied$locality),method="fosfat buffer",category="isolasjon",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate>0&unrarefied$B_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate==0&unrarefied$B_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_phosphate>0&unrarefied$B_phosphate>0)])))
+
+tmp3=data.frame(Lokalitet=unique(unrarefied$locality),method="ANO",category="prøvetaking",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$A_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit==0&unrarefied$A_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$A_kit>0&unrarefied$A_phosphate>0)])))
+tmp4=data.frame(Lokalitet=unique(unrarefied$locality),method="intensiv",category="prøvetaking",A=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit>0&unrarefied$B_phosphate==0)])),B=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit==0&unrarefied$B_phosphate>0)])),AB=sapply(unique(unrarefied$locality),function(x)length(unrarefied$species[unrarefied$locality==x&(unrarefied$B_kit>0&unrarefied$B_phosphate>0)])))
+
+unrarefied.summary=rbind(tmp,tmp2,tmp3,tmp4)
+unrarefied.summary=melt(unrarefied.summary)
+unrarefied.summary$variable=factor(unrarefied.summary$variable,levels=c("A","AB","B"))
+ggplot(unrarefied.summary[unrarefied.summary$category=="isolasjon",],aes(x=Lokalitet,y=value,fill=variable))+
+  geom_bar(stat="identity")+
+  facet_wrap(~method,scales="free_y")+
+  ylab("Antall arter")+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank(),axis.text.x = element_text(angle=90))+
+  scale_fill_manual(values=c("#e5f5e0","#31a354","#a1d99b"),name="Deteksjonskategori",labels=c("kun ANO","begge","kun intensiv"))
+  
+ggplot(unrarefied.summary[unrarefied.summary$category=="prøvetaking",],aes(x=Lokalitet,y=value,fill=variable))+
+  geom_bar(stat="identity")+
+  facet_wrap(~method,scales="free_y")+
+  ylab("Antall arter")+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank(),axis.text.x = element_text(angle=90))+
+  scale_fill_manual(values=c("#bcbddc","#756bb1","#efedf5"),name="Deteksjonskategori")#,labels=c("kun kit","begge","kun fosfat buffer"))
+  
+```
+
+#NMDS ordinasjon
+```{r}
+det.max=read.table("/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ITS2_ITS4/detection_matrix_plants_24022021.txt",header=T,fileEncoding = "latin1",sep=";")
+matrix=dcast(data=det.max,Lokalitet+method+sampling_scheme+extraction_method+variable+habitat~species,value.var="value")
+matrix$method[matrix$sampling_scheme%in%"A"&matrix$extraction_method%in%"kit"]="MS ANO kit"
+matrix$method[matrix$sampling_scheme=="A"&matrix$extraction_method=="phosphate"]="MS ANO fosfat buffer"
+matrix$method[matrix$sampling_scheme=="B"&matrix$extraction_method=="kit"]="MS intensiv kit"
+matrix$method[matrix$sampling_scheme=="B"&matrix$extraction_method=="phosphate"]="MS intensiv fosfat buffer"
+ord=vegan::metaMDS((matrix[,7:183][colSums(matrix[,7:183])>0]),trymax=100)
+
+MDS=data.frame(matrix[,1:6],scores(ord))
+MDS=dplyr::left_join(MDS,data.frame(Lokalitet=gsub("matrix.Lokalitet","",rownames(envfit(ord~matrix$Lokalitet)$factors$centroids)),NMDS1_centroid=(envfit(ord~matrix$Lokalitet))$factors$centroids[,1],NMDS2_centroid=(envfit(ord~matrix$Lokalitet))$factors$centroids[,2]),by="Lokalitet")
+MDS$method[MDS$sampling_scheme%in%"A"&MDS$extraction_method%in%"kit"]="MS ANO kit"
+MDS$method[MDS$sampling_scheme=="A"&MDS$extraction_method=="phosphate"]="MS ANO fosfat buffer"
+MDS$method[MDS$sampling_scheme=="B"&MDS$extraction_method=="kit"]="MS intensiv kit"
+MDS$method[MDS$sampling_scheme=="B"&MDS$extraction_method=="phosphate"]="MS intensiv fosfat buffer"
+
+ggplot(MDS,aes(x=NMDS1,y=NMDS2,color=habitat,fill=habitat,shape=method))+
+  geom_point(size=2)+
+  geom_segment(aes(x=NMDS1,y=NMDS2,xend=NMDS1_centroid,yend=NMDS2_centroid,color=habitat,fill=habitat))+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank())+
+  scale_color_manual(values=c("#7b3294","#008837"),name="Habitat",labels=c("semi-naturlig mark","skog"))+
+  scale_fill_manual(values=c("#7b3294","#008837"),name="Habitat",labels=c("semi-naturlig mark","skog"))+
+  guides(fill=F)+
+  scale_shape_manual(values=c(21,22,23,24,25,26),name="Metode",labels=c("ANO landskap","ANO nærmeste punkt","MS ANO fosfat buffer","MS ANO kit","MS intensiv fosfat buffer","MS intensiv kit"))
+```
+
+#CCA ordinasjon med variasjon koblet til lokalitet fjernet
+```{r}
+tmp=cca(matrix[,7:183][colSums(matrix[,7:183])>0]~matrix$method+Condition(matrix$Lokalitet))
+tmp
+
+CCA=data.frame(matrix[,1:6],scores(tmp)$sites)
+
+ggplot(CCA,aes(x=CCA1,y=CCA2,color=method,fill=method))+
+  geom_point()+
+  #geom_segment(aes(x=CCA1,y=CCA2,xend=CCA1_centroids,yend=CCA2_centroids))+
+  theme(axis.line = element_line(colour="black"),panel.background = element_blank())+
+  scale_color_manual(values=c("#008837","#8DCAA6","#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode")+
+  scale_fill_manual(values=c("#008837","#8DCAA6","#D04A07","#F98C40","#5AA5CD","#236CA7"),name="Metode")+
+  guides(fill=F)#+
+  scale_shape_manual(values=c(21,24),name="Isolasjon",labels=c("kit","fosfat"))
+
+```
+
+#prikke figur som sammenligne metodene
+```{r}
+det.max$method[det.max$sampling_scheme%in%"A"&det.max$extraction_method%in%"kit"]="MS ANO kit"
+det.max$method[det.max$sampling_scheme=="A"&det.max$extraction_method=="phosphate"]="MS ANO fosfat buffer"
+det.max$method[det.max$sampling_scheme=="B"&det.max$extraction_method=="kit"]="MS intensiv kit"
+det.max$method[det.max$sampling_scheme=="B"&det.max$extraction_method=="phosphate"]="MS intensiv fosfat buffer"
+det.max$method=gsub("_entire_field","_landskap",det.max$method)
+det.max$method=gsub("_nearest_point","nærmeste_punkt",det.max$method)
+det.max$value[det.max$method=="ANO_landskap"&det.max$habitat=="lavland"]=0
+for(i in (1:length(unique(det.max$Lokalitet)))){
+plot=ggplot(data=det.max[det.max$Lokalitet==unique(det.max$Lokalitet)[i]&det.max$value>0,],aes(x=method,y=species,color=method))+
+    geom_point(aes(size=scales::rescale(det.max$value[det.max$Lokalitet==unique(det.max$Lokalitet)[i]&det.max$value>0],to=c(0,4))))+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    theme(legend.position = "none") +
+    xlab(label="") +
+    ylab(label="")
+  ggsave(file=paste0("/data/P-Prosjekter/36013000_genlab/metabarcoding/statistical_analyses/hotspots_15203402/ITS2_ITS4/",unique(det.max$Lokalitet)[i],"_prikke_figur.png"),plot,device="png",height=297,width=210,units="mm")
+}
+
+
+```
+
+
